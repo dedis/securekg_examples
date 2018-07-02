@@ -1,19 +1,21 @@
-import java.util
-
 import ch.epfl.dedis.lib.eventlog.Event
-import ch.epfl.dedis.lib.omniledger.{InstanceId, OmniledgerRPC}
 import ch.epfl.dedis.lib.omniledger.contracts.EventLogInstance
-import ch.epfl.dedis.lib.omniledger.darc.Signer
+import ch.epfl.dedis.lib.omniledger.OmniledgerRPC
+
+import scala.collection.JavaConverters._
 import org.scalatest.FunSuite
 
 class EventlogTest extends FunSuite {
   test("post one event") {
-    val ol: OmniledgerRPC = ServerConfig.getOmniledgerRPC
-    val admin: Signer = ServerConfig.getSigner
-    val el: EventLogInstance = new EventLogInstance(ol, ServerConfig.getEventlogId)
-    val key: InstanceId = el.log(new Event("hello", "goodbye"), util.Arrays.asList(admin))
-    Thread.sleep(2 * ol.getConfig.getBlockInterval.toMillis)
-    System.out.println("got event: " + el.get(key))
+    val config = new ServerConfig()
 
+    val ol = new OmniledgerRPC(config.getRoster, config.getSkipchainId)
+    val admin = config.getSigner
+    val el = new EventLogInstance(ol, config.getEventlogId)
+    val key = el.log(new Event("hello", "goodbye"), List(admin).asJava)
+
+    Thread sleep 2 * ol.getConfig.getBlockInterval.toMillis
+
+    println("got event: " + el.get(key))
   }
 }
