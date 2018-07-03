@@ -1,0 +1,17 @@
+[[servers]]
+    Address = "tls://securekg.dedis.ch:18002"
+    Suite = "Ed25519"
+    Public = "13dc1a4f714422e7952cef38efd527925341efaa3a992398cb52fa3e0e6dd2b8"
+    Description = "Conode_1"
+
+[[servers]]
+    Address = "tls://securekg.dedis.ch:18004"
+    Suite = "Ed25519"
+    Public = "705f2877119a39f366ea53f381e37234f9678dee5f17c9f20b11df7c6cdc0e64"
+    Description = "Conode_2"
+
+[[servers]]
+    Address = "tls://securekg.dedis.ch:18006"
+    Suite = "Ed25519"
+    Public = "1084f8f919112931b18a545e14e4cb668ba0b6d4884f64b463fe3fa4493b8f0e"
+    Description = "Conode_3"
