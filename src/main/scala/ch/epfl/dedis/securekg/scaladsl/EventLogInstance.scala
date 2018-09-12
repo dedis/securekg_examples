@@ -1,7 +1,7 @@
 package ch.epfl.dedis.securekg.scaladsl
 
 import ch.epfl.dedis.lib.eventlog.Event
-import ch.epfl.dedis.lib.omniledger.{InstanceId, OmniledgerRPC, contracts}
+import ch.epfl.dedis.lib.omniledger.{InstanceId, OmniledgerRPC}
 import ch.epfl.dedis.lib.omniledger.darc.{DarcId, Signer}
 
 import scala.util.Try
@@ -21,7 +21,7 @@ class EventLogInstance private[scaladsl] (
 
     for {
       resultKeys <- Try( underlying.log(javaEvents, darc, javaSigners) )
-    } yield resultKeys.asScala.toSeq
+    } yield resultKeys.asScala
   }
 
   def log(event: Event, signers: Signer*): Try[InstanceId] = {

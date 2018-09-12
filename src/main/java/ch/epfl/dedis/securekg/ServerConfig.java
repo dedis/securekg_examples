@@ -12,12 +12,11 @@ import ch.epfl.dedis.lib.omniledger.darc.Signer;
 import ch.epfl.dedis.lib.omniledger.darc.SignerEd25519;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import javax.xml.bind.DatatypeConverter;
-
 /**
  * For testing with our deployed servers, you may use this class.
  * It contains an OmniledgerRPC object and a signer object which are already initialised.
- * An example of how it may be used is in the Main class.
+ * An example of how it may be used is in the ch.epfl.dedis.securekg.Main class.
+ * TODO: load configuration from resources folder.
  */
 public final class ServerConfig {
     /**
@@ -48,7 +47,7 @@ public final class ServerConfig {
      */
     public static SkipblockId getSkipchainId() throws CothorityCryptoException {
         // This is the hex id in the ol-$hex.cfg file.
-        return new SkipblockId(DatatypeConverter.parseHexBinary("117434c7e3946c555e8ec72e44499e38f02297804b5c540998dad918b66f9882"));
+        return new SkipblockId(Hex.parseHexBinary("117434c7e3946c555e8ec72e44499e38f02297804b5c540998dad918b66f9882"));
     }
 
     /**

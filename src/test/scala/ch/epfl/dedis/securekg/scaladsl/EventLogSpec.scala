@@ -18,7 +18,7 @@ class EventLogSpec extends AsyncBaseSpec {
   "The event log" should {
     "allow to post a new event" in {
       val event = new Event("my topic", "some message")
-      val eventKey = eventLog.log(event)
+      val eventKey = eventLog.log(event, Helpers.signer:_*)
       logger.debug(s"key=$eventKey")
 
       val wait = Future { blocking { Thread.sleep(2 * omniledger.getConfig.getBlockInterval.toMillis) } }
