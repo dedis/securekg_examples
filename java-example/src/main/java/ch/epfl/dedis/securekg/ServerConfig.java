@@ -2,6 +2,7 @@ package ch.epfl.dedis.securekg;
 
 import ch.epfl.dedis.lib.Roster;
 import ch.epfl.dedis.lib.SkipblockId;
+import ch.epfl.dedis.lib.crypto.Hex;
 import ch.epfl.dedis.lib.exception.CothorityCryptoException;
 import ch.epfl.dedis.lib.exception.CothorityException;
 import ch.epfl.dedis.lib.omniledger.InstanceId;
@@ -9,6 +10,7 @@ import ch.epfl.dedis.lib.omniledger.OmniledgerRPC;
 import ch.epfl.dedis.lib.omniledger.darc.DarcId;
 import ch.epfl.dedis.lib.omniledger.darc.Signer;
 import ch.epfl.dedis.lib.omniledger.darc.SignerEd25519;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -45,7 +47,8 @@ public final class ServerConfig {
      * @return the genesis skipblock ID
      */
     public static SkipblockId getSkipchainId() throws CothorityCryptoException {
-        return new SkipblockId(DatatypeConverter.parseHexBinary("77671f623cb3471b756f5ff88b66b1b10c8cbfee2740fba52368565d2b48c7a9"));
+        // This is the hex id in the ol-$hex.cfg file.
+        return new SkipblockId(DatatypeConverter.parseHexBinary("117434c7e3946c555e8ec72e44499e38f02297804b5c540998dad918b66f9882"));
     }
 
     /**
@@ -53,9 +56,9 @@ public final class ServerConfig {
      */
     public static Signer getSigner() {
         // output of "el create --keys"
-        // Identity: ed25519:c903f5a3c6388254fb401184ce46a8b3db544b820bbe9eebb7c2c0a9bdfc07a3
-        // export PRIVATE_KEY=e70318856e0e9ced0840db6fff6f9296f52e36dc262dc388fa443bf1c6a07e0a
-        return new SignerEd25519(DatatypeConverter.parseHexBinary("e70318856e0e9ced0840db6fff6f9296f52e36dc262dc388fa443bf1c6a07e0a"));
+        // Identity: ed25519:9203b8f065d7e8273175f3bb674b317c4a00bbfd9fa20675cccaac59585c4ec4
+        // export PRIVATE_KEY=ea29d91778840fcc567d7bb4c4a82929923aa8ce1ea7ecf16b25106bc0362e00
+        return new SignerEd25519(Hex.parseHexBinary("ea29d91778840fcc567d7bb4c4a82929923aa8ce1ea7ecf16b25106bc0362e00"));
     }
 
     /**
@@ -63,7 +66,7 @@ public final class ServerConfig {
      * @return the darc ID
      */
     public static DarcId getDarcId() throws CothorityCryptoException {
-        return new DarcId(DatatypeConverter.parseHexBinary("f058943d96072c13a09031dcdec9e99c2972ec1cc9b1e7979ceb988d1978c580"));
+        return new DarcId(Hex.parseHexBinary("60267ce77583a6fa2b46d45a0b7fbd1e9dfc84c33ea910fcf42a9ede05a0c8fd"));
     }
 
     /**
@@ -72,15 +75,15 @@ public final class ServerConfig {
      */
     public static InstanceId getEventlogId() throws CothorityCryptoException {
         // output of ./el create
-        //export EL=f058943d96072c13a09031dcdec9e99c2972ec1cc9b1e7979ceb988d1978c580e36393071922a3ff58ba58ffc0b728967d7c25267ace6755d3f1e69e038f4de0
-        return new InstanceId(DatatypeConverter.parseHexBinary("f058943d96072c13a09031dcdec9e99c2972ec1cc9b1e7979ceb988d1978c580e36393071922a3ff58ba58ffc0b728967d7c25267ace6755d3f1e69e038f4de0"));
+        //export EL=f8d9c27e429f6cbf8edbab99a8d57134244131eece1527b936f5bd39b5969d45
+        return new InstanceId(Hex.parseHexBinary("f8d9c27e429f6cbf8edbab99a8d57134244131eece1527b936f5bd39b5969d45"));
     }
 
     /**
      * Get the pre-configured omniledger RPC.
      * @return the omniledger RPC object
      */
-    public static OmniledgerRPC getOmniledgerRPC() throws CothorityException {
+    public static OmniledgerRPC getOmniledgerRPC() throws CothorityException, InvalidProtocolBufferException {
         return new OmniledgerRPC(getRoster(), getSkipchainId());
     }
 }

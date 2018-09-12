@@ -29,8 +29,8 @@ object Helpers {
     new SkipblockId(DatatypeConverter.parseHexBinary(config.get[String]("cothority.skipChainId")))
   }
 
-  lazy val signer: SignerEd25519 = {
-    new SignerEd25519(DatatypeConverter.parseHexBinary(config.get[String]("cothority.signerPrivateKey")))
+  lazy val signer: Seq[SignerEd25519] = {
+    Seq(new SignerEd25519(DatatypeConverter.parseHexBinary(config.get[String]("cothority.signerPrivateKey"))))
   }
 
   lazy val darcId: DarcId = {

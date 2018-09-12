@@ -7,7 +7,8 @@ import ch.epfl.dedis.lib.omniledger.darc.{DarcId, Signer}
 import scala.util.Try
 
 class EventLogInstance private[scaladsl] (
-    val underlying: ch.epfl.dedis.lib.omniledger.contracts.EventLogInstance
+    val underlying: ch.epfl.dedis.lib.omniledger.contracts.EventLogInstance,
+    val darc: DarcId
 ) {
 
   def id: InstanceId = underlying.getInstanceId
@@ -19,7 +20,7 @@ class EventLogInstance private[scaladsl] (
     val javaSigners = signers.asJava
 
     for {
-      resultKeys <- Try( underlying.log(javaEvents, javaSigners) )
+      resultKeys <- Try( underlying.log(javaEvents, darc, javaSigners) )
     } yield resultKeys.asScala.toSeq
   }
 
@@ -42,11 +43,6 @@ object EventLogInstance {
     import scala.collection.JavaConverters._
     val javaSigners = signers.asJava
     val underlying = new ch.epfl.dedis.lib.omniledger.contracts.EventLogInstance(ol, javaSigners, darcId)
-    new EventLogInstance(underlying)
-  }
-
-  def apply(ol: OmniledgerRPC, id: InstanceId): EventLogInstance = {
-    val underlying = new ch.epfl.dedis.lib.omniledger.contracts.EventLogInstance(ol, id)
-    new EventLogInstance(underlying)
+    new EventLogInstance(underlying, darcId)
   }
 }
