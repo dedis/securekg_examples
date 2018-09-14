@@ -1,11 +1,11 @@
 package ch.epfl.dedis.securekg;
 
+import ch.epfl.dedis.lib.byzcoin.ByzCoinRPC;
 import ch.epfl.dedis.lib.eventlog.Event;
 import ch.epfl.dedis.lib.exception.CothorityException;
-import ch.epfl.dedis.lib.omniledger.InstanceId;
-import ch.epfl.dedis.lib.omniledger.OmniledgerRPC;
-import ch.epfl.dedis.lib.omniledger.contracts.EventLogInstance;
-import ch.epfl.dedis.lib.omniledger.darc.Signer;
+import ch.epfl.dedis.lib.byzcoin.InstanceId;
+import ch.epfl.dedis.lib.byzcoin.contracts.EventLogInstance;
+import ch.epfl.dedis.lib.byzcoin.darc.Signer;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.util.Arrays;
@@ -14,7 +14,7 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            OmniledgerRPC ol = ServerConfig.getOmniledgerRPC();
+            ByzCoinRPC ol = ServerConfig.getRPC();
             Signer admin = ServerConfig.getSigner();
             EventLogInstance el = new EventLogInstance(ol, ServerConfig.getEventlogId());
             InstanceId key = el.log(new Event("hello", "goodbye"), ServerConfig.getDarcId(), Arrays.asList(admin));

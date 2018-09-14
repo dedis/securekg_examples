@@ -1,13 +1,13 @@
 package ch.epfl.dedis.securekg.scaladsl
 
 import ch.epfl.dedis.lib.eventlog.Event
-import ch.epfl.dedis.lib.omniledger.{InstanceId, OmniledgerRPC}
-import ch.epfl.dedis.lib.omniledger.darc.{DarcId, Signer}
+import ch.epfl.dedis.lib.byzcoin.{ByzCoinRPC, InstanceId}
+import ch.epfl.dedis.lib.byzcoin.darc.{DarcId, Signer}
 
 import scala.util.Try
 
 class EventLogInstance private[scaladsl] (
-    val underlying: ch.epfl.dedis.lib.omniledger.contracts.EventLogInstance,
+    val underlying: ch.epfl.dedis.lib.byzcoin.contracts.EventLogInstance,
     val darc: DarcId
 ) {
 
@@ -39,10 +39,10 @@ class EventLogInstance private[scaladsl] (
 }
 
 object EventLogInstance {
-  def apply(ol: OmniledgerRPC, signers: Seq[Signer], darcId: DarcId): EventLogInstance = {
+  def apply(ol: ByzCoinRPC, signers: Seq[Signer], darcId: DarcId): EventLogInstance = {
     import scala.collection.JavaConverters._
     val javaSigners = signers.asJava
-    val underlying = new ch.epfl.dedis.lib.omniledger.contracts.EventLogInstance(ol, javaSigners, darcId)
+    val underlying = new ch.epfl.dedis.lib.byzcoin.contracts.EventLogInstance(ol, javaSigners, darcId)
     new EventLogInstance(underlying, darcId)
   }
 }

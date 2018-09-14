@@ -1,7 +1,7 @@
 package ch.epfl.dedis.securekg.scaladsl
 
 import ch.epfl.dedis.lib.eventlog.Event
-import ch.epfl.dedis.lib.omniledger.OmniledgerRPC
+import ch.epfl.dedis.lib.byzcoin.ByzCoinRPC
 import ch.epfl.dedis.securekg.{AsyncBaseSpec, Helpers}
 import play.api.Logger
 
@@ -9,9 +9,9 @@ import scala.concurrent.{Future, blocking}
 
 class EventLogSpec extends AsyncBaseSpec {
 
-  val omniledger : OmniledgerRPC = new OmniledgerRPC(Helpers.roster, Helpers.skipChainId)
+  val byzcoin : ByzCoinRPC = new ByzCoinRPC(Helpers.roster, Helpers.skipChainId)
 
-  val eventLog: EventLogInstance = EventLogInstance(omniledger, Helpers.signer, darcId = Helpers.darcId)
+  val eventLog: EventLogInstance = EventLogInstance(byzcoin, Helpers.signer, darcId = Helpers.darcId)
 
   val logger: Logger = Logger( this.getClass )
 
@@ -21,7 +21,7 @@ class EventLogSpec extends AsyncBaseSpec {
       val eventKey = eventLog.log(event, Helpers.signer:_*)
       logger.debug(s"key=$eventKey")
 
-      val wait = Future { blocking { Thread.sleep(2 * omniledger.getConfig.getBlockInterval.toMillis) } }
+      val wait = Future { blocking { Thread.sleep(2 * byzcoin.getConfig.getBlockInterval.toMillis) } }
 
       val futureStoredEvent = for {
         _ <- wait

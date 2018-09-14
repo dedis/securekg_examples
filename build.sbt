@@ -7,7 +7,7 @@ lazy val root = project in file(".")
 
 libraryDependencies += "com.typesafe" % "config" % "1.3.2"
 
-libraryDependencies += "ch.epfl.dedis" % "cothority" % "master-180912"
+libraryDependencies += "ch.epfl.dedis" % "cothority" % "master-180914"
 
 libraryDependencies += "com.typesafe.play" %% "play" % "2.6.15"
 

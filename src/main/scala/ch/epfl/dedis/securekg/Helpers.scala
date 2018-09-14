@@ -2,9 +2,9 @@ package ch.epfl.dedis.securekg
 
 import ch.epfl.dedis.lib.Roster
 import ch.epfl.dedis.lib.SkipblockId
-import ch.epfl.dedis.lib.omniledger.InstanceId
-import ch.epfl.dedis.lib.omniledger.darc.DarcId
-import ch.epfl.dedis.lib.omniledger.darc.SignerEd25519
+import ch.epfl.dedis.lib.byzcoin.InstanceId
+import ch.epfl.dedis.lib.byzcoin.darc.DarcId
+import ch.epfl.dedis.lib.byzcoin.darc.SignerEd25519
 import ch.epfl.dedis.lib.crypto.Hex
 import play.api.Configuration
 

@@ -2,21 +2,20 @@ package ch.epfl.dedis.securekg;
 
 import ch.epfl.dedis.lib.Roster;
 import ch.epfl.dedis.lib.SkipblockId;
+import ch.epfl.dedis.lib.byzcoin.ByzCoinRPC;
 import ch.epfl.dedis.lib.crypto.Hex;
 import ch.epfl.dedis.lib.exception.CothorityCryptoException;
 import ch.epfl.dedis.lib.exception.CothorityException;
-import ch.epfl.dedis.lib.omniledger.InstanceId;
-import ch.epfl.dedis.lib.omniledger.OmniledgerRPC;
-import ch.epfl.dedis.lib.omniledger.darc.DarcId;
-import ch.epfl.dedis.lib.omniledger.darc.Signer;
-import ch.epfl.dedis.lib.omniledger.darc.SignerEd25519;
+import ch.epfl.dedis.lib.byzcoin.InstanceId;
+import ch.epfl.dedis.lib.byzcoin.darc.DarcId;
+import ch.epfl.dedis.lib.byzcoin.darc.Signer;
+import ch.epfl.dedis.lib.byzcoin.darc.SignerEd25519;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * For testing with our deployed servers, you may use this class.
- * It contains an OmniledgerRPC object and a signer object which are already initialised.
+ * It contains an ByzCoinRPC object and a signer object which are already initialised.
  * An example of how it may be used is in the ch.epfl.dedis.securekg.Main class.
- * TODO: load configuration from resources folder.
  */
 public final class ServerConfig {
     /**
@@ -42,12 +41,12 @@ public final class ServerConfig {
     }
 
     /**
-     * Gets the genesis skipblock ID of an existing omniledger service.
+     * Gets the genesis skipblock ID of an existing ByzCoin service.
      * @return the genesis skipblock ID
      */
     public static SkipblockId getSkipchainId() throws CothorityCryptoException {
         // This is the hex id in the ol-$hex.cfg file.
-        return new SkipblockId(Hex.parseHexBinary("117434c7e3946c555e8ec72e44499e38f02297804b5c540998dad918b66f9882"));
+        return new SkipblockId(Hex.parseHexBinary("347c2e0f2998bb9e4fda92612b43abdf54f65d220043a46e47acd991ecd3c6d7"));
     }
 
     /**
@@ -65,7 +64,7 @@ public final class ServerConfig {
      * @return the darc ID
      */
     public static DarcId getDarcId() throws CothorityCryptoException {
-        return new DarcId(Hex.parseHexBinary("60267ce77583a6fa2b46d45a0b7fbd1e9dfc84c33ea910fcf42a9ede05a0c8fd"));
+        return new DarcId(Hex.parseHexBinary("dd58b6e4c8d53c5f7d35192b405c28f00da26c8b909f5b88ed65e6558eda0102"));
     }
 
     /**
@@ -74,15 +73,15 @@ public final class ServerConfig {
      */
     public static InstanceId getEventlogId() throws CothorityCryptoException {
         // output of ./el create
-        //export EL=f8d9c27e429f6cbf8edbab99a8d57134244131eece1527b936f5bd39b5969d45
-        return new InstanceId(Hex.parseHexBinary("f8d9c27e429f6cbf8edbab99a8d57134244131eece1527b936f5bd39b5969d45"));
+        //export EL=24728948c65135c7c866811b8bc77728dd40369c5f60cb2c3590246042676231
+        return new InstanceId(Hex.parseHexBinary("24728948c65135c7c866811b8bc77728dd40369c5f60cb2c3590246042676231"));
     }
 
     /**
-     * Get the pre-configured omniledger RPC.
-     * @return the omniledger RPC object
+     * Get the pre-configured ByzCoinRPC.
+     * @return the ByzCoinRPC object
      */
-    public static OmniledgerRPC getOmniledgerRPC() throws CothorityException, InvalidProtocolBufferException {
-        return new OmniledgerRPC(getRoster(), getSkipchainId());
+    public static ByzCoinRPC getRPC() throws CothorityException, InvalidProtocolBufferException {
+        return new ByzCoinRPC(getRoster(), getSkipchainId());
     }
 }
