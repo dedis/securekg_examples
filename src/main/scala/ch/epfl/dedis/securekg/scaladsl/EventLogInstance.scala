@@ -1,32 +1,31 @@
 package ch.epfl.dedis.securekg.scaladsl
 
-import ch.epfl.dedis.lib.eventlog.Event
-import ch.epfl.dedis.lib.byzcoin.{ByzCoinRPC, InstanceId}
-import ch.epfl.dedis.lib.byzcoin.darc.{DarcId, Signer}
+import ch.epfl.dedis.byzcoin.{ByzCoinRPC, InstanceId}
+import ch.epfl.dedis.eventlog
+import ch.epfl.dedis.eventlog.Event
+import ch.epfl.dedis.lib.darc.{DarcId, Signer}
 
 import scala.util.Try
 
 class EventLogInstance private[scaladsl] (
-    val underlying: ch.epfl.dedis.lib.byzcoin.contracts.EventLogInstance,
-    val darc: DarcId
+    val underlying: ch.epfl.dedis.eventlog.EventLogInstance,
 ) {
 
-  def id: InstanceId = underlying.getInstanceId
-
-  def log(events: TraversableOnce[Event], signers: Signer*): Try[Seq[InstanceId]] = {
+  def log(events: TraversableOnce[Event], signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long]): Try[Seq[InstanceId]] = {
     import scala.collection.JavaConverters._
 
     val javaEvents = events.toSeq.asJava
-    val javaSigners = signers.asJava
+    val javaSigners = signers.toSeq.asJava
+    val javaCounters = counters.toSeq.asJava
 
     for {
-      resultKeys <- Try( underlying.log(javaEvents, darc, javaSigners) )
+      resultKeys <- Try( underlying.log(javaEvents, javaSigners, javaCounters) )
     } yield resultKeys.asScala
   }
 
-  def log(event: Event, signers: Signer*): Try[InstanceId] = {
+  def log(event: Event, signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long]): Try[InstanceId] = {
     for {
-      resultKeys <- log(List(event), signers: _*)
+      resultKeys <- log(List(event), signers, counters)
     } yield resultKeys.head
   }
 
@@ -39,10 +38,8 @@ class EventLogInstance private[scaladsl] (
 }
 
 object EventLogInstance {
-  def apply(ol: ByzCoinRPC, signers: Seq[Signer], darcId: DarcId): EventLogInstance = {
-    import scala.collection.JavaConverters._
-    val javaSigners = signers.asJava
-    val underlying = new ch.epfl.dedis.lib.byzcoin.contracts.EventLogInstance(ol, javaSigners, darcId)
-    new EventLogInstance(underlying, darcId)
+  def apply(bc: ByzCoinRPC, el: InstanceId): EventLogInstance = {
+    val underlying = eventlog.EventLogInstance.fromByzcoin(bc, el)
+    new EventLogInstance(underlying)
   }
 }

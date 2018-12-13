@@ -28,12 +28,6 @@ class HelpersSpec extends AsyncBaseSpec {
       signer should not be null
     }
 
-    "contain the Darc Id" in {
-      val darcId = Helpers.darcId
-      logger.debug(s"cothority.darcId=$darcId")
-      darcId should not be null
-    }
-
     "contain the eventLog id" in {
       val eventLogId = Helpers.eventLogId
       logger.debug(s"cothority.eventLogId=$eventLogId")

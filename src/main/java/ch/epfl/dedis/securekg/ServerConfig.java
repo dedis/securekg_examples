@@ -1,16 +1,15 @@
 package ch.epfl.dedis.securekg;
 
+import ch.epfl.dedis.byzcoin.ByzCoinRPC;
+import ch.epfl.dedis.byzcoin.InstanceId;
+import ch.epfl.dedis.lib.Hex;
 import ch.epfl.dedis.lib.Roster;
 import ch.epfl.dedis.lib.SkipblockId;
-import ch.epfl.dedis.lib.byzcoin.ByzCoinRPC;
-import ch.epfl.dedis.lib.crypto.Hex;
+import ch.epfl.dedis.lib.darc.DarcId;
+import ch.epfl.dedis.lib.darc.Signer;
+import ch.epfl.dedis.lib.darc.SignerEd25519;
 import ch.epfl.dedis.lib.exception.CothorityCryptoException;
 import ch.epfl.dedis.lib.exception.CothorityException;
-import ch.epfl.dedis.lib.byzcoin.InstanceId;
-import ch.epfl.dedis.lib.byzcoin.darc.DarcId;
-import ch.epfl.dedis.lib.byzcoin.darc.Signer;
-import ch.epfl.dedis.lib.byzcoin.darc.SignerEd25519;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 /**
  * For testing with our deployed servers, you may use this class.
@@ -45,8 +44,8 @@ public final class ServerConfig {
      * @return the genesis skipblock ID
      */
     public static SkipblockId getSkipchainId() throws CothorityCryptoException {
-        // This is the hex id in the ol-$hex.cfg file.
-        return new SkipblockId(Hex.parseHexBinary("347c2e0f2998bb9e4fda92612b43abdf54f65d220043a46e47acd991ecd3c6d7"));
+        // This is the hex id in the bc-$hex.cfg file.
+        return new SkipblockId(Hex.parseHexBinary("0ab721ada6ac482a04db9d645c2528a1ff5bd62d785638c8b6ad1b0254af35fd"));
     }
 
     /**
@@ -60,28 +59,20 @@ public final class ServerConfig {
     }
 
     /**
-     * Gets the darc ID that has the "invoke:eventlog" and "spawn:eventlog" rules.
-     * @return the darc ID
-     */
-    public static DarcId getDarcId() throws CothorityCryptoException {
-        return new DarcId(Hex.parseHexBinary("dd58b6e4c8d53c5f7d35192b405c28f00da26c8b909f5b88ed65e6558eda0102"));
-    }
-
-    /**
      * Gets the eventlog instance ID.
      * @return the instance ID.
      */
     public static InstanceId getEventlogId() throws CothorityCryptoException {
         // output of ./el create
-        //export EL=24728948c65135c7c866811b8bc77728dd40369c5f60cb2c3590246042676231
-        return new InstanceId(Hex.parseHexBinary("24728948c65135c7c866811b8bc77728dd40369c5f60cb2c3590246042676231"));
+        //export EL=06c30c5d5a83cef67dd94db576ad2c16ed7acf158dac4a92bdc0d92b07bdc030
+        return new InstanceId(Hex.parseHexBinary("06c30c5d5a83cef67dd94db576ad2c16ed7acf158dac4a92bdc0d92b07bdc030"));
     }
 
     /**
      * Get the pre-configured ByzCoinRPC.
      * @return the ByzCoinRPC object
      */
-    public static ByzCoinRPC getRPC() throws CothorityException, InvalidProtocolBufferException {
-        return new ByzCoinRPC(getRoster(), getSkipchainId());
+    public static ByzCoinRPC getRPC() throws CothorityException {
+        return ByzCoinRPC.fromByzCoin(getRoster(), getSkipchainId());
     }
 }
