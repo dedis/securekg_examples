@@ -6,6 +6,7 @@ import ch.epfl.dedis.eventlog.Event
 import ch.epfl.dedis.lib.darc.{DarcId, Signer}
 
 import scala.util.Try
+import scala.collection.JavaConverters._
 
 class EventLogInstance private[scaladsl] (
     val underlying: ch.epfl.dedis.eventlog.EventLogInstance,
@@ -42,4 +43,11 @@ object EventLogInstance {
     val underlying = eventlog.EventLogInstance.fromByzcoin(bc, el)
     new EventLogInstance(underlying)
   }
+
+  def apply(bc: ByzCoinRPC, darcBaseID: DarcId, signers: List[Signer], signerCtrs: List[java.lang.Long]): EventLogInstance = {
+    val underlying = new eventlog.EventLogInstance(bc, darcBaseID, signers.asJava, signerCtrs.asJava)
+    new EventLogInstance(underlying)
+  }
+  val contractID = eventlog.EventLogInstance.ContractId
+  val logCmd = eventlog.EventLogInstance.LogCmd
 }

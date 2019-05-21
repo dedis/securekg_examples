@@ -1,8 +1,9 @@
 package ch.epfl.dedis.securekg
 
 import ch.epfl.dedis.byzcoin.InstanceId
-import ch.epfl.dedis.lib.{Hex, Roster, SkipblockId}
-import ch.epfl.dedis.lib.darc.{DarcId, SignerEd25519}
+import ch.epfl.dedis.lib.{Hex, SkipblockId}
+import ch.epfl.dedis.lib.network.Roster
+import ch.epfl.dedis.lib.darc.SignerEd25519
 import play.api.Configuration
 
 import scala.io.Source
@@ -10,7 +11,7 @@ import scala.io.Source
 object Helpers {
 
   def readRosterFile(): String = {
-    val source = Source.fromInputStream( getClass.getResourceAsStream("/roster.toml") )
+    val source = Source.fromInputStream( getClass.getResourceAsStream("/public.toml") )
     source.mkString
   }
 

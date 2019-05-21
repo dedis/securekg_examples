@@ -1,6 +1,5 @@
 package ch.epfl.dedis.securekg
 
-import com.typesafe.config.{Config, ConfigFactory}
 import play.api.{Configuration, Logger}
 
 class HelpersSpec extends AsyncBaseSpec {
@@ -8,8 +7,6 @@ class HelpersSpec extends AsyncBaseSpec {
   val config: Configuration = Helpers.config
 
   val logger: Logger = Logger( this.getClass )
-
-  import scala.collection.JavaConverters._
 
   "The application config" should {
     "exist" in {

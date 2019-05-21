@@ -1,31 +1,42 @@
 package ch.epfl.dedis.securekg.scaladsl
 
-import java.util.Collections
+import java.time.Duration
+import java.time.temporal.ChronoUnit.MILLIS
 
-import ch.epfl.dedis.byzcoin.ByzCoinRPC
+import ch.epfl.dedis.byzcoin.{ByzCoinRPC, SignerCounters}
 import ch.epfl.dedis.eventlog.Event
-import ch.epfl.dedis.securekg.{AsyncBaseSpec, Helpers, ServerConfig}
+import ch.epfl.dedis.lib.darc.{Darc, Rules, SignerEd25519}
+import ch.epfl.dedis.securekg._
 import play.api.Logger
 
 import scala.concurrent.{Future, blocking}
+import scala.collection.JavaConverters._
 
 class EventLogSpec extends AsyncBaseSpec {
 
-  val byzcoin : ByzCoinRPC = ServerConfig.getRPC
-
-  val eventLog: EventLogInstance = EventLogInstance(byzcoin, Helpers.eventLogId)
-
   val logger: Logger = Logger( this.getClass )
+  val testInstanceController: TestServerController = TestServerInit.getInstance
+  val admin: SignerEd25519 = new SignerEd25519
+  val genesisDarc: Darc = {
+    val darc = ByzCoinRPC.makeGenesisDarc(admin, testInstanceController.getRoster)
+    darc.addIdentity("spawn:eventlog", admin.getIdentity, Rules.OR)
+    darc.addIdentity("invoke:" + EventLogInstance.contractID + "." + EventLogInstance.logCmd, admin.getIdentity, Rules.OR)
+    darc
+  }
+  val byzcoin : ByzCoinRPC = new ByzCoinRPC(testInstanceController.getRoster, genesisDarc, Duration.of(1000, MILLIS))
+  val eventLog: EventLogInstance = {
+    val adminCtrs: SignerCounters = byzcoin.getSignerCounters(List(admin.getIdentity.toString).asJava)
+    EventLogInstance(byzcoin, genesisDarc.getId, List(admin), List(adminCtrs.head + 1))
+  }
 
   "The event log" should {
     "allow to post a new event" in {
-      import scala.collection.JavaConverters._
-      val admin = Helpers.signer(0)
-      val counters = byzcoin.getSignerCounters(Collections.singletonList(admin.getIdentity().toString()))
+
+      val counters = byzcoin.getSignerCounters(List(admin.getIdentity.toString).asJava)
       counters.increment()
 
       val eventKey = eventLog.log(new Event("my topic", "some message"),
-        Helpers.signer, counters.getCounters.asScala)
+        List(admin), counters.getCounters.asScala)
 
       logger.debug(s"key=$eventKey")
 
