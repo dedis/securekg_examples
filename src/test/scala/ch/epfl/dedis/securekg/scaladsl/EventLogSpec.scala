@@ -1,6 +1,6 @@
 package ch.epfl.dedis.securekg.scaladsl
 
-import java.time.Duration
+import java.time.{Duration, Instant}
 import java.time.temporal.ChronoUnit.MILLIS
 
 import ch.epfl.dedis.byzcoin.{ByzCoinRPC, SignerCounters}
@@ -9,8 +9,8 @@ import ch.epfl.dedis.lib.darc.{Darc, Rules, SignerEd25519}
 import ch.epfl.dedis.securekg._
 import play.api.Logger
 
-import scala.concurrent.{Future, blocking}
 import scala.collection.JavaConverters._
+import scala.concurrent.{Future, blocking}
 
 class EventLogSpec extends AsyncBaseSpec {
 
@@ -35,7 +35,8 @@ class EventLogSpec extends AsyncBaseSpec {
       val counters = byzcoin.getSignerCounters(List(admin.getIdentity.toString).asJava)
       counters.increment()
 
-      val eventKey = eventLog.log(new Event("my topic", "some message"),
+      val topic = "my topic"
+      val eventKey = eventLog.log(new Event(topic, "some message"),
         List(admin), counters.getCounters.asScala)
 
       logger.debug(s"key=$eventKey")
@@ -47,13 +48,26 @@ class EventLogSpec extends AsyncBaseSpec {
         key <- Future.fromTry(eventKey)
       } yield eventLog.get(key).get
 
-      for {
+      def findAll: Future[List[Event]] = for {
         storedEvent <- futureStoredEvent
+        _ <- wait
+        events <- Future {
+          eventLog.findAll(topic, Instant.now().minusSeconds(10), Instant.now().plusSeconds(10))
+        }.flatMap {
+          case found if found contains storedEvent => Future.successful(found)
+          case _                                   => findAll
+        }
+      } yield events
+
+
+      for {
+        storedEvent     <- futureStoredEvent
+        allStoredEvents <- findAll
       } yield {
-        val topic = storedEvent.getTopic
-        val content = storedEvent.getContent
-        topic shouldBe "my topic"
-        content shouldBe "some message"
+        allStoredEvents should contain(storedEvent)
+
+        storedEvent.getTopic shouldBe topic
+        storedEvent.getContent shouldBe "some message"
       }
     }
   }
