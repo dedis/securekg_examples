@@ -1,19 +1,21 @@
 package ch.epfl.dedis.securekg.scaladsl
 
+import java.time.Instant
+
 import ch.epfl.dedis.byzcoin.{ByzCoinRPC, InstanceId}
 import ch.epfl.dedis.eventlog
 import ch.epfl.dedis.eventlog.Event
 import ch.epfl.dedis.lib.darc.{DarcId, Signer}
 
-import scala.util.Try
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 class EventLogInstance private[scaladsl] (
     val underlying: ch.epfl.dedis.eventlog.EventLogInstance,
 ) {
+  import scala.collection.JavaConverters._
 
   def log(events: TraversableOnce[Event], signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long]): Try[Seq[InstanceId]] = {
-    import scala.collection.JavaConverters._
 
     val javaEvents = events.toSeq.asJava
     val javaSigners = signers.toSeq.asJava
@@ -34,8 +36,14 @@ class EventLogInstance private[scaladsl] (
     Try( underlying.get( key ) )
   }
 
-  //TODO: Map search method to get a nice single iterable
+  def findAll(topic: String, from: Instant, to: Instant): List[Event] =
+    underlying
+      .search( topic, toNanos(from), toNanos(to))
+      .events.asScala.toList
 
+  private def toNanos(instant: Instant): Long = instant.toEpochMilli * 1000 * 1000
+
+  //TODO: Map search method to get a nice single iterable
 }
 
 object EventLogInstance {

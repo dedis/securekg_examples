@@ -5,7 +5,7 @@ name := "securekg-example"
 
 lazy val root = project in file(".")
 
-libraryDependencies += "ch.epfl.dedis" % "cothority" % "3.0.6"
+libraryDependencies += "ch.epfl.dedis" % "cothority" % "3.1.0"
 libraryDependencies += "com.typesafe" % "config" % "1.3.2"
 libraryDependencies += "com.typesafe.play" %% "play" % "2.6.15"
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
