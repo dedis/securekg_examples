@@ -30,6 +30,12 @@ class HelpersSpec extends AsyncBaseSpec {
       logger.debug(s"cothority.eventLogId=$eventLogId")
       eventLogId should not be null
     }
+
+    "contain the genesis darc id" in {
+      val genesisDarcId = Helpers.genesisDarcId
+      logger.debug(s"cothority.genesisDarcID=$genesisDarcId")
+      genesisDarcId should not be null
+    }
   }
 
   "The roster" should {

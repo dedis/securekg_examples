@@ -8,38 +8,41 @@ import ch.epfl.dedis.eventlog.Event
 import ch.epfl.dedis.lib.darc.{DarcId, Signer}
 
 import scala.collection.JavaConverters._
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future}
 
 class EventLogInstance private[scaladsl] (
     val underlying: ch.epfl.dedis.eventlog.EventLogInstance,
 ) {
   import scala.collection.JavaConverters._
 
-  def log(events: TraversableOnce[Event], signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long]): Try[Seq[InstanceId]] = {
+  def log(events: TraversableOnce[Event], signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long])
+         (implicit ec: ExecutionContext): Future[Seq[InstanceId]] = {
+    import scala.collection.JavaConverters._
 
     val javaEvents = events.toSeq.asJava
     val javaSigners = signers.toSeq.asJava
     val javaCounters = counters.toSeq.asJava
 
     for {
-      resultKeys <- Try( underlying.log(javaEvents, javaSigners, javaCounters) )
+      resultKeys <- Future{ underlying.log(javaEvents, javaSigners, javaCounters) }
     } yield resultKeys.asScala
   }
 
-  def log(event: Event, signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long]): Try[InstanceId] = {
+  def log(event: Event, signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long])
+         (implicit ec: ExecutionContext): Future[InstanceId] =
     for {
       resultKeys <- log(List(event), signers, counters)
     } yield resultKeys.head
-  }
 
-  def get(key: InstanceId): Try[Event] = {
-    Try( underlying.get( key ) )
-  }
+  def get(key: InstanceId)(implicit ec: ExecutionContext): Future[Event] =
+    Future{ underlying.get( key ) }
 
-  def findAll(topic: String, from: Instant, to: Instant): List[Event] =
-    underlying
-      .search( topic, toNanos(from), toNanos(to))
-      .events.asScala.toList
+  def findAll(topic: String, from: Instant, to: Instant)(implicit ec: ExecutionContext): Future[List[Event]] =
+    Future {
+      underlying
+        .search( topic, toNanos(from), toNanos(to))
+        .events.asScala.toList
+    }
 
   private def toNanos(instant: Instant): Long = instant.toEpochMilli * 1000 * 1000
 
