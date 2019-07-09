@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit.MILLIS
 
 import ch.epfl.dedis.byzcoin.{ByzCoinRPC, SignerCounters}
 import ch.epfl.dedis.eventlog.Event
+import ch.epfl.dedis.lib.Hex
 import ch.epfl.dedis.lib.darc.{Darc, Rules, SignerEd25519}
 import ch.epfl.dedis.securekg._
 import play.api.Logger
@@ -16,7 +17,7 @@ class EventLogSpec extends AsyncBaseSpec {
 
   val logger: Logger = Logger( this.getClass )
   val testInstanceController: TestServerController = TestServerInit.getInstance
-  val admin: SignerEd25519 = new SignerEd25519
+  val admin: SignerEd25519 = new SignerEd25519(Hex.parseHexBinary("76F40BEA4681B898E49D9657682703C0C3AA5D677A1DD259BDC60A66376B9E00"))
   val genesisDarc: Darc = {
     val darc = ByzCoinRPC.makeGenesisDarc(admin, testInstanceController.getRoster)
     darc.addIdentity("_name:eventlog", admin.getIdentity, Rules.OR)
@@ -24,11 +25,18 @@ class EventLogSpec extends AsyncBaseSpec {
     darc.addIdentity("invoke:" + EventLogInstance.contractID + "." + EventLogInstance.logCmd, admin.getIdentity, Rules.OR)
     darc
   }
+
   val byzcoin : ByzCoinRPC = new ByzCoinRPC(testInstanceController.getRoster, genesisDarc, Duration.of(1000, MILLIS))
   val eventLog: EventLogInstance = {
     val adminCtrs: SignerCounters = byzcoin.getSignerCounters(List(admin.getIdentity.toString).asJava)
     adminCtrs.increment()
     EventLogInstance(byzcoin, genesisDarc.getId, List(admin), adminCtrs.getCounters.asScala.toList)
+  }
+
+  "The genesis darc" should {
+    "not change" in {
+      Helpers.genesisDarcId shouldBe genesisDarc.getBaseId
+    }
   }
 
   "The event log" should {
