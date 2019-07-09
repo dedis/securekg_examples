@@ -13,7 +13,7 @@ class NamingInstance private[scaladsl] (val underlying: ch.epfl.dedis.byzcoin.co
     val javaSigners = signers.toSeq.asJava
     val javaCounters = counters.toSeq.asJava
     Future{
-      blocking { underlying.set(name, iID, javaSigners, javaCounters) }
+      underlying.set(name, iID, javaSigners, javaCounters)
     }
   }
 
