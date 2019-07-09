@@ -7,12 +7,14 @@ import ch.epfl.dedis.lib.darc.{DarcId, Signer}
 
 import scala.util.Try
 import scala.collection.JavaConverters._
+import scala.concurrent.{ExecutionContext, Future}
 
 class EventLogInstance private[scaladsl] (
     val underlying: ch.epfl.dedis.eventlog.EventLogInstance,
 ) {
 
-  def log(events: TraversableOnce[Event], signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long]): Try[Seq[InstanceId]] = {
+  def log(events: TraversableOnce[Event], signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long])
+         (implicit ec: ExecutionContext): Future[Seq[InstanceId]] = {
     import scala.collection.JavaConverters._
 
     val javaEvents = events.toSeq.asJava
@@ -20,18 +22,19 @@ class EventLogInstance private[scaladsl] (
     val javaCounters = counters.toSeq.asJava
 
     for {
-      resultKeys <- Try( underlying.log(javaEvents, javaSigners, javaCounters) )
+      resultKeys <- Future{ underlying.log(javaEvents, javaSigners, javaCounters) }
     } yield resultKeys.asScala
   }
 
-  def log(event: Event, signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long]): Try[InstanceId] = {
+  def log(event: Event, signers: TraversableOnce[Signer], counters: TraversableOnce[java.lang.Long])
+         (implicit ec: ExecutionContext): Future[InstanceId] = {
     for {
       resultKeys <- log(List(event), signers, counters)
     } yield resultKeys.head
   }
 
-  def get(key: InstanceId): Try[Event] = {
-    Try( underlying.get( key ) )
+  def get(key: InstanceId)(implicit ec: ExecutionContext): Future[Event] = {
+    Future{ underlying.get( key ) }
   }
 
   //TODO: Map search method to get a nice single iterable

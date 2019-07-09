@@ -19,6 +19,7 @@ class EventLogSpec extends AsyncBaseSpec {
   val admin: SignerEd25519 = new SignerEd25519
   val genesisDarc: Darc = {
     val darc = ByzCoinRPC.makeGenesisDarc(admin, testInstanceController.getRoster)
+    darc.addIdentity("_name:eventlog", admin.getIdentity, Rules.OR)
     darc.addIdentity("spawn:eventlog", admin.getIdentity, Rules.OR)
     darc.addIdentity("invoke:" + EventLogInstance.contractID + "." + EventLogInstance.logCmd, admin.getIdentity, Rules.OR)
     darc
@@ -26,7 +27,8 @@ class EventLogSpec extends AsyncBaseSpec {
   val byzcoin : ByzCoinRPC = new ByzCoinRPC(testInstanceController.getRoster, genesisDarc, Duration.of(1000, MILLIS))
   val eventLog: EventLogInstance = {
     val adminCtrs: SignerCounters = byzcoin.getSignerCounters(List(admin.getIdentity.toString).asJava)
-    EventLogInstance(byzcoin, genesisDarc.getId, List(admin), List(adminCtrs.head + 1))
+    adminCtrs.increment()
+    EventLogInstance(byzcoin, genesisDarc.getId, List(admin), adminCtrs.getCounters.asScala.toList)
   }
 
   "The event log" should {
@@ -35,27 +37,32 @@ class EventLogSpec extends AsyncBaseSpec {
       val counters = byzcoin.getSignerCounters(List(admin.getIdentity.toString).asJava)
       counters.increment()
 
-      val eventKey = eventLog.log(new Event("my topic", "some message"),
-        List(admin), counters.getCounters.asScala)
-
-      logger.debug(s"key=$eventKey")
-
-      val wait = Future { blocking { Thread.sleep(2 * byzcoin.getConfig.getBlockInterval.toMillis) } }
-
-      val futureStoredEvent = for {
-        _ <- wait
-        key <- Future.fromTry(eventKey)
-      } yield eventLog.get(key).get
-
       for {
-        storedEvent <- futureStoredEvent
+        key <- eventLog.log(new Event("my topic", "some message"), List(admin), counters.getCounters.asScala)
+        _ <- Future { blocking { Thread.sleep(2 * byzcoin.getConfig.getBlockInterval.toMillis) } }
+        result <- eventLog.get(key)
       } yield {
-        val topic = storedEvent.getTopic
-        val content = storedEvent.getContent
+        val topic = result.getTopic
+        val content = result.getContent
         topic shouldBe "my topic"
         content shouldBe "some message"
       }
     }
-  }
 
+    "be nameable" in {
+      val counters = byzcoin.getSignerCounters(List(admin.getIdentity.toString).asJava)
+
+      counters.increment()
+      val namingInst = NamingInstance(byzcoin, genesisDarc.getId, List(admin), counters.getCounters.asScala.toList)
+
+      val name = "my event log"
+      for {
+        _ <- Future{ counters.increment() }
+        _ <- namingInst.set(name, eventLog.underlying.getInstanceId, List(admin), counters.getCounters.asScala.toList, 10)
+        iID <- Future {byzcoin.resolveInstanceID(genesisDarc.getBaseId, name) }
+      } yield {
+        iID shouldBe eventLog.underlying.getInstanceId
+      }
+    }
+  }
 }
